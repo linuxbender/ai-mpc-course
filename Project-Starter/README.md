@@ -1,3 +1,5 @@
+# Project setup instructions
+
 In this project, you are going to make a chatbot to scrape LLM Inference Serving websites to research costs of serving various LLMs. You will do this by writing an MCP Server that hooks up to Firecrawl's API and saving the data in a SQLite Database. You should use the following websites to scrape:
 
 - "cloudrift": "https://www.cloudrift.ai/inference"
