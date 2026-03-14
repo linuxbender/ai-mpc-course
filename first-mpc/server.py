@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-notes_mcp = FastMCP(name="Notes MCP Server")
+mcp = FastMCP(name="notes_mcp_server")
 
 NOTES_FILE = Path(__file__).parent / "data/notes.json"
 
@@ -13,18 +13,18 @@ def load_notes() -> dict:
         return json.loads(notes_file.read_text())
     return {}
 
-@notes_mcp.tool()
+@mcp.tool()
 def save_notes(notes: dict):
     NOTES_FILE.write_text(json.dumps(notes, indent=2))
 
-@notes_mcp.tool()
+@mcp.tool()
 def add_note(name: str, content: str) -> str:
     notes = load_notes()
     notes[name] = content
     save_notes(notes)
     return f"the Note {name} was added"
 
-@notes_mcp.tool()
+@mcp.tool()
 def delete_note(name: str) -> str:
     notes = load_notes()
     if name in notes:
@@ -34,14 +34,14 @@ def delete_note(name: str) -> str:
 
     return f"the Note {name} was not found"
 
-@notes_mcp.tool()
+@mcp.tool()
 def get_note(name: str) -> str:
     notes = load_notes()
     if name in notes:
         return notes[name]
     return f"the Note {name} was not found"
 
-@notes_mcp.tool()
+@mcp.tool()
 def list_notes() -> str:
     notes = load_notes()
     if not notes:
@@ -49,14 +49,14 @@ def list_notes() -> str:
     return f"Notes: {', '.join(notes.keys())} notes"
 
 
-@notes_mcp.resource("resource://{name}")
+@mcp.resource("resource://{name}")
 def get_note_resource(name: str) -> str:
     notes = load_notes()
     if name in notes:
         return notes[name]
     return f"the Note {name} was not found"
 
-@notes_mcp.prompt()
+@mcp.prompt()
 def summarize_notes(name: str) -> str:
     notes = load_notes()
     if name not in notes:
@@ -67,5 +67,5 @@ def summarize_notes(name: str) -> str:
     Please summarize it in a concise manner. Keep the summary 100 words or less.
     """
 
-if __name__ == "__main__":
-    notes_mcp.run()
+#if __name__ == "__main__":
+#    notes_mcp.run()
