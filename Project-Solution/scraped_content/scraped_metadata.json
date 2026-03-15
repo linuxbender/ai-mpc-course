@@ -1,0 +1,36 @@
+{
+  "cloudrift": {
+    "provider_name": "cloudrift",
+    "url": "https://www.cloudrift.ai/inference",
+    "domain": "www.cloudrift.ai",
+    "scraped_at": "2026-03-15T13:49:57.991653",
+    "formats": [
+      "markdown",
+      "html"
+    ],
+    "success": true,
+    "content_files": {
+      "markdown": "cloudrift_markdown.txt",
+      "html": "cloudrift_html.txt"
+    },
+    "title": "AI Inference API \u2022 Low-Cost Llama 4 & DeepSeek Models | Cloudrift",
+    "description": "Stream Llama 4 Maverick, DeepSeek-V3, and other high-performance language models via Cloudrift\u2019s pay-as-you-go inference API. No queues, no GPU setup\u2014scale instantly and only pay for what you use."
+  },
+  "deepinfra": {
+    "provider_name": "deepinfra",
+    "url": "https://deepinfra.com/pricing",
+    "domain": "deepinfra.com",
+    "scraped_at": "2026-03-15T13:51:24.031707",
+    "formats": [
+      "markdown",
+      "html"
+    ],
+    "success": true,
+    "content_files": {
+      "markdown": "deepinfra_markdown.txt",
+      "html": "deepinfra_html.txt"
+    },
+    "title": "Simple Pricing | Machine Learning Infrastructure | Deep Infra",
+    "description": "We provide only pay-what-you-use pricing with no long-term contracts or upfront costs for our machine learning models and infrastructure. Learn more!"
+  }
+}
