@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import json
 import logging
@@ -414,9 +415,37 @@ class ChatSession:
             messages=messages
         )
 
+    async def _get_db_context(self) -> str:
+        """Fetch existing pricing data from DB to provide context to Claude."""
+        if not self.sqlite_server:
+            return ""
+        try:
+            result = await self.sqlite_server.execute_tool("read_query", {
+                "query": "SELECT company_name, plan_name, input_tokens, output_tokens, currency FROM pricing_plans"
+            })
+            raw = extract_tool_content(result)
+            rows = json.loads(raw)
+            if not rows:
+                return ""
+            lines = ["The following pricing data is already stored in the database (do NOT re-scrape these):"]
+            for row in rows:
+                lines.append(
+                    f"  - {row.get('company_name')} | {row.get('plan_name')} | "
+                    f"Input: {row.get('input_tokens')} {row.get('currency', 'USD')}/1M | "
+                    f"Output: {row.get('output_tokens')} {row.get('currency', 'USD')}/1M"
+                )
+            return "\n".join(lines)
+        except Exception:
+            return ""
+
     async def process_query(self, query: str) -> None:
         """Process a user query and extract/store relevant data."""
-        messages = [{'role': 'user', 'content': query}]
+        db_context = await self._get_db_context()
+        if db_context:
+            augmented_query = f"{db_context}\n\nUser query: {query}"
+        else:
+            augmented_query = query
+        messages = [{'role': 'user', 'content': augmented_query}]
         response = await self._call_claude(messages)
 
         full_response = ""
@@ -519,20 +548,25 @@ class ChatSession:
             result = await self.sqlite_server.execute_tool("read_query", {
                 "query": "SELECT company_name, plan_name, input_tokens, output_tokens, currency FROM pricing_plans ORDER BY created_at DESC LIMIT 5"
             })
-            print("\n=== Recently Stored Pricing Data ===")
             raw = extract_tool_content(result)
             try:
-                rows = json.loads(raw)
+                try:
+                    rows = json.loads(raw)
+                except (json.JSONDecodeError, TypeError):
+                    rows = ast.literal_eval(raw)
+                print("\n--- Stored Pricing Data ---")
+                print(f"{'Company':<20} {'Plan':<25} {'Input (per 1M)':>15} {'Output (per 1M)':>16}")
+                print("-" * 78)
                 for row in rows:
                     company = row.get("company_name", "Unknown")
                     plan = row.get("plan_name", "Unknown")
                     input_t = row.get("input_tokens", "N/A")
                     output_t = row.get("output_tokens", "N/A")
                     currency = row.get("currency", "USD")
-                    print(f"  • {company} | {plan} | Input: {input_t} {currency}/1M | Output: {output_t} {currency}/1M")
-            except (json.JSONDecodeError, TypeError):
+                    print(f"  • Company: {company} | Plan: {plan} | Input: {input_t} {currency}/1M | Output: {output_t} {currency}/1M")
+                print("-" * 78)
+            except Exception:
                 print(raw)
-            print("=" * 40)
         except Exception as e:
             print(f"Error showing data: {e}")
 
